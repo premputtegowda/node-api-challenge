@@ -23,27 +23,27 @@ router.post('/', validateProject, (req, res) => {
 //     .catch(err => res.status(400).json({error : "Sorry unable to create a post"}))
 // });
 
-// router.get('/', (req, res) => {
-//   // do your magic!
-//   User.get()
-//     .then(users => {
+router.get('/', (req, res) => {
+  
+  Project.get()
+    .then(projects => {
         
-//       res.status(500).json(users)}
-//       )
-//     .catch(err => {
-//       console
-//       console.log(err)
-//       res.status(401).json({error: "Couldn't retrieve users"})
+      res.status(500).json(projects)}
+      )
+    .catch(err => {
       
-// })
-// });
+      console.log(err)
+      res.status(404).json({error: "Couldn't retrieve projects"})
+      
+})
+});
 
-// router.get('/:id', validateUserId,(req, res) => {
-//   // do your magic!
-//   const user = req.user;
-//   console.log("get user by id: ",user)
-//   res.status(500).json(user);
-// });
+router.get('/:id', validateProjectId,(req, res) => {
+
+  const project = req.project;
+    
+  res.status(500).json(project);
+});
 
 // router.get('/:id/posts', validateUserId , (req, res) => {
 //   // do your magic!
@@ -73,27 +73,27 @@ router.post('/', validateProject, (req, res) => {
 
 // //custom middleware
 
-// function validateUserId(req, res, next) {
-//   // do your magic!
-//   const id = req.params.id;
-//   User.getById(id)
-//     .then( user => {
-//       console.log(user)
-//         if (user){
-//           req.user = user
-//         console.log("middleware: ", req.user)
-//         next();
-//         } else {
-//           res.status(400).json({ message: "invalid user id" })
-//         }
+function validateProjectId(req, res, next) {
+  
+  const id = req.params.id;
+  Project.get(id)
+    .then( project => {
+      console.log(project)
+        if (project){
+          req.project = project
+        console.log("validated project: ", req.project)
+        next();
+        } else {
+          res.status(400).json({ message: "invalid project id" })
+        }
         
       
-//       })
-//     .catch(err => {
-//       console.log(err)
-//       res.status(401).json({ message: "Sorry something went wrong" })})
+      })
+    .catch(err => {
+      console.log(err)
+      res.status(404).json({ message: "Sorry something went wrong" })})
    
-// }
+}
 
 // function validateUser(req, res, next) {
 //   // do your magic!
@@ -117,7 +117,7 @@ router.post('/', validateProject, (req, res) => {
 // }
 
 function validateProject(req, res, next) {
-  // do your magic!
+ 
   if (!Object.keys(req.body).length) {
     res.status(400).json({message: 'missing project data'}) 
     } else if (!req.body.name || !req.body.description) {
