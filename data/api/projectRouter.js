@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
   Project.get()
     .then(projects => {
         
-      res.status(500).json(projects)}
+      res.status(200).json(projects)}
       )
     .catch(err => {
       
@@ -42,7 +42,7 @@ router.get('/:id', validateProjectId,(req, res) => {
 
   const project = req.project;
     
-  res.status(500).json(project);
+  res.status(200).json(project);
 });
 
 // router.get('/:id/posts', validateUserId , (req, res) => {
@@ -53,23 +53,23 @@ router.get('/:id', validateProjectId,(req, res) => {
 //     .catch(err => res.status(401).json({error: "Unable to retrive posts"}))
 // });
 
-// router.delete('/:id',validateUserId, (req, res) => {
-//   // do your magic!
-//   const user = req.user;
-//   User.remove(user.id)
-//     .then(count => res.status(500).json(count))
-//     .catch(err => res.status(401).json({message:'Sorry something went wrong'}))
+router.delete('/:id',validateProjectId, (req, res) => {
+  // do your magic!
+  const project = req.project;
+  Project.remove(project.id)
+    .then(count => res.status(200).json(count))
+    .catch(err => res.status(500).json({message:'Sorry something went wrong'}))
 
-// });
+});
 
-// router.put('/:id',validateUserId, validateUser,(req, res) => {
-//   // do your magic!
-//   User.update(req.user.id, req.body)
-//     .then( count => res.status(500).json(count))
-//     .catch(err => res.status(401).json({message:'Sorry something went wrong'}))
+router.put('/:id',validateProjectId, validateProject,(req, res) => {
+  // do your magic!
+  Project.update(req.project.id, req.body)
+    .then( count => res.status(500).json(count))
+    .catch(err => res.status(500).json({message:'Sorry something went wrong'}))
   
 
-// });
+});
 
 // //custom middleware
 
@@ -91,7 +91,7 @@ function validateProjectId(req, res, next) {
       })
     .catch(err => {
       console.log(err)
-      res.status(404).json({ message: "Sorry something went wrong" })})
+      res.status(500).json({ message: "Sorry something went wrong" })})
    
 }
 
