@@ -2,7 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 const Project = require('../helpers/projectModel.js')
-// const User = require('./userDb.js')
+const Action = require('../helpers/actionModel.js')
+
 
 router.post('/', validateProject, (req, res) => {
   
@@ -12,23 +13,25 @@ router.post('/', validateProject, (req, res) => {
   
   })  ;
 
-// router.post('/:id/posts',validateUserId,validatePost, (req, res) => {
-//   console.log(req.body);
-//   const post = {...req.body, user_id:req.user.id}
-//   console
+router.post('/:id/actions',validateProjectId,validateAction, (req, res) => {
+  console.log(req.body);
+   req.body = {...req.body, project_id:req.params.id}
+   
   
-//   console.log("before posting: ",post)
-//   Post.insert(post)
-//     .then(post => res.status(201).json(post))
-//     .catch(err => res.status(400).json({error : "Sorry unable to create a post"}))
-// });
+   console.log(req.body);
+  
+  Action.insert(req.body)
+    .then(action => res.status(201).json(action))
+    .catch(err => res.status(500).json({error : "Sorry unable to create an action"}))
+});
 
 router.get('/', (req, res) => {
   
   Project.get()
     .then(projects => {
         
-      res.status(200).json(projects)}
+      res.status(200).json(projects)
+    }
       )
     .catch(err => {
       
@@ -45,13 +48,13 @@ router.get('/:id', validateProjectId,(req, res) => {
   res.status(200).json(project);
 });
 
-// router.get('/:id/posts', validateUserId , (req, res) => {
-//   // do your magic!
-//   const id = req.user.id
-//   User.getUserPosts(id)
-//     .then(posts => res.status(500).json(posts))
-//     .catch(err => res.status(401).json({error: "Unable to retrive posts"}))
-// });
+router.get('/:id/actions', validateProjectId , (req, res) => {
+  
+  const id = req.project.id
+  Project.getProjectActions(id)
+    .then(actions => res.status(500).json(actions))
+    .catch(err => res.status(500).json({error: "Unable to retrive posts"}))
+});
 
 router.delete('/:id',validateProjectId, (req, res) => {
   // do your magic!
@@ -78,10 +81,10 @@ function validateProjectId(req, res, next) {
   const id = req.params.id;
   Project.get(id)
     .then( project => {
-      console.log(project)
+     
         if (project){
           req.project = project
-        console.log("validated project: ", req.project)
+        
         next();
         } else {
           res.status(400).json({ message: "invalid project id" })
@@ -95,26 +98,7 @@ function validateProjectId(req, res, next) {
    
 }
 
-// function validateUser(req, res, next) {
-//   // do your magic!
-  
-//   if (!Object.keys(req.body).length) {
-//     res.status(400).json({message: 'missing user data'}) 
-//     } else if (!req.body.name) {{}
-//       console.log(!req.body.name)
-//       res.status(400).json({message: 'user name required'}) 
-//     } else if(Object.keys(req.body).length > 1) {
-//       res.status(400).json({message: 'Invalid data'})
-//     } else {
-//       next();
-//     }
-      
-    
 
-    
-  
-
-// }
 
 function validateProject(req, res, next) {
  
@@ -132,5 +116,22 @@ function validateProject(req, res, next) {
         next();
     } 
 }
+
+function validateAction(req, res, next) {
+ 
+    if (!Object.keys(req.body).length) {
+      res.status(400).json({message: 'missing action data'}) 
+      } else if (!req.body.description || !req.body.notes) {
+      
+        res.status(400).json({message: ' notes and description required'}) 
+      } else if (req.body.completed) {
+          typeof req.body.completed === "boolean" ? 
+          next() : 
+          res.status(400).json({message: 'Completed field has to be boolean'})
+  
+      } else {
+          next();
+      } 
+  }
 
 module.exports = router;
